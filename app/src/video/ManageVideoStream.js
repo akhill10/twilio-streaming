@@ -20,7 +20,7 @@ const ManageVideoStream = ({username, setError}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const startStream = async (event) => {
-    // Call to the backend to create all the resources and start the stream (audio only)
+    // Call to the backend to create all the resources and start the stream
     event.preventDefault();
 
     const streamName = event.target.streamName.value;
@@ -45,7 +45,7 @@ const ManageVideoStream = ({username, setError}) => {
       // Get the details back from the server and the token for the video room
       setStreamDetails(result.streamDetails);
 
-      // Join the video room with audio only
+      // Join the video room 
       const videoRoom = await connect(result.token, {
         name: result.streamDetails.roomId
       });
