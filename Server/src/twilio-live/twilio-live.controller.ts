@@ -42,7 +42,7 @@ export class TwilioLiveController {
 
   @Post('audienceToken')
   @HttpCode(200)
-  async createAudienceAccessTokenAudio(@Body() stream: RequestAccessTokenDto) {
+  async createAudienceAccessToken(@Body() stream: RequestAccessTokenDto) {
     return await this.twilioLiveService.getAudienceToken(
       stream.playerStreamerId,
       stream.username,
@@ -52,6 +52,6 @@ export class TwilioLiveController {
   @Get('listOfStreams')
   @HttpCode(200)
   async getListOfStreams() {
-    return await this.twilioLiveService.listAudioOnlyStreams();
+    return await this.twilioLiveService.listAllStreams();
   }
 }

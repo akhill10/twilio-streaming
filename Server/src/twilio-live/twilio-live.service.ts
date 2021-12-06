@@ -113,78 +113,6 @@ export class TwilioLiveService {
     }
   }
 
-  async createStreamerAccessToken(identity: string, roomId: string) {
-    try {
-      const videoGrant = new this.videoGrant({
-        room: roomId,
-      });
-
-      const token = new this.accessToken(
-        this.configService.get<string>('TWILIO_ACCOUNT_SID'),
-        this.configService.get<string>('TWILIO_API_KEY_SID'),
-        this.configService.get<string>('TWILIO_API_KEY_SECRET'),
-      );
-
-      token.addGrant(videoGrant);
-      token.identity = identity;
-
-      return {
-        token: token.toJwt(),
-      };
-    } catch (err) {
-      return new BadRequestException(
-        err,
-        'Unable to create streamer access token',
-      );
-    }
-  }
-
-  async createAudienceAccessToken() {
-    const identity = crypto.randomBytes(20).toString('hex');
-    try {
-      const playerStreamerList =
-        await this.twilioClient.media.playerStreamer.list({
-          status: 'started',
-        });
-      const playerStreamer = playerStreamerList.length
-        ? playerStreamerList[0]
-        : null;
-
-      if (!playerStreamer) {
-        return {
-          message: `No one is streaming right now`,
-        };
-      }
-
-      const token = new this.accessToken(
-        this.configService.get<string>('TWILIO_ACCOUNT_SID'),
-        this.configService.get<string>('TWILIO_API_KEY_SID'),
-        this.configService.get<string>('TWILIO_API_KEY_SECRET'),
-      );
-
-      const playbackGrant = await this.twilioClient.media
-        .playerStreamer(playerStreamer.sid)
-        .playbackGrant()
-        .create({ ttl: 60 });
-
-      const wrappedPlaybackGrant = new this.PlaybackGrant({
-        grant: playbackGrant.grant,
-      });
-
-      token.addGrant(wrappedPlaybackGrant);
-      token.identity = identity;
-
-      return {
-        token: token.toJwt(),
-      };
-    } catch (error) {
-      return new BadRequestException({
-        message: 'Unable to view livestream',
-        error: error,
-      });
-    }
-  }
-
   async startAudioStream(streamName: string, username: string) {
     try {
       const audioRoom = await this.twilioClient.video.rooms.create({
@@ -233,7 +161,7 @@ export class TwilioLiveService {
     }
   }
 
-  async listAudioOnlyStreams() {
+  async listAllStreams() {
     try {
       const mediaProcessorList =
         await this.twilioClient.media.mediaProcessor.list({
@@ -300,7 +228,7 @@ export class TwilioLiveService {
       };
     } catch (err) {
       return new InternalServerErrorException({
-        message: `Unable to create Stream`,
+        message: `Unable to create Access Token`,
         error: err,
       });
     }
